@@ -98,6 +98,43 @@ class Settings(BaseModel):
         description="Allowed Cross-Origin Resource Sharing (CORS) origins",
     )
 
+    # Database configuration (PostgreSQL)
+    # Default is a local development placeholder; production must provide a real DATABASE_URL.
+    DATABASE_URL: str = Field(
+        default="postgresql+psycopg2://postgres:postgres@localhost:5432/kisan_bhavsaathi_dev",
+        description="PostgreSQL database connection URL (postgresql+psycopg2://...)",
+    )
+    DB_POOL_SIZE: int = Field(
+        default=5,
+        description="Persistent connection pool size for SQLAlchemy",
+    )
+    DB_MAX_OVERFLOW: int = Field(
+        default=10,
+        description="Maximum temporary connections allowed beyond pool_size",
+    )
+    DB_POOL_TIMEOUT: int = Field(
+        default=30,
+        description="Seconds to wait before raising pool timeout error",
+    )
+    DB_POOL_RECYCLE: int = Field(
+        default=1800,
+        description="Seconds before recycling persistent connections (30 minutes)",
+    )
+    DB_POOL_PRE_PING: bool = Field(
+        default=True,
+        description="Verify connection liveness with a ping before handing out",
+    )
+
+    @property
+    def masked_database_url(self) -> str:
+        """Return the database URL with the password sanitized for safe logging."""
+        try:
+            from sqlalchemy.engine import make_url
+            url = make_url(self.DATABASE_URL)
+            return url.render_as_string(hide_password=True)
+        except Exception:
+            return "postgresql+psycopg2://***"
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: Any) -> List[str]:
@@ -138,8 +175,21 @@ class Settings(BaseModel):
             kwargs["LOG_LEVEL"] = os.environ["LOG_LEVEL"].upper()
         if "CORS_ORIGINS" in os.environ:
             kwargs["CORS_ORIGINS"] = os.environ["CORS_ORIGINS"]
+        if "DATABASE_URL" in os.environ:
+            kwargs["DATABASE_URL"] = os.environ["DATABASE_URL"]
+        if "DB_POOL_SIZE" in os.environ:
+            kwargs["DB_POOL_SIZE"] = int(os.environ["DB_POOL_SIZE"])
+        if "DB_MAX_OVERFLOW" in os.environ:
+            kwargs["DB_MAX_OVERFLOW"] = int(os.environ["DB_MAX_OVERFLOW"])
+        if "DB_POOL_TIMEOUT" in os.environ:
+            kwargs["DB_POOL_TIMEOUT"] = int(os.environ["DB_POOL_TIMEOUT"])
+        if "DB_POOL_RECYCLE" in os.environ:
+            kwargs["DB_POOL_RECYCLE"] = int(os.environ["DB_POOL_RECYCLE"])
+        if "DB_POOL_PRE_PING" in os.environ:
+            kwargs["DB_POOL_PRE_PING"] = os.environ["DB_POOL_PRE_PING"].lower() in ("true", "1", "yes")
 
         return cls(**kwargs)
+
 
 
 @lru_cache

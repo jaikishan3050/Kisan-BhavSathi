@@ -1,0 +1,26 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python byte code and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+
+# Node / Web artifacts (future steps)
+node_modules/
+dist/
+.build/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
