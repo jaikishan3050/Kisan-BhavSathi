@@ -1,0 +1,15 @@
+# Kisan BhavSaathi — Backend Dependencies (Step 3 Foundation)
+# Requires: Python 3.11+
+
+# Core Web Framework
+fastapi>=0.110.0,<1.0.0
+
+# Production ASGI Server
+uvicorn[standard]>=0.28.0,<1.0.0
+
+# Data Validation and Schema Serialization
+pydantic>=2.6.0,<3.0.0
+
+# Testing Framework and HTTP Test Client
+pytest>=8.0.0,<10.0.0
+httpx>=0.27.0,<1.0.0
